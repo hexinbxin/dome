@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+<body>
+    <canvas width = '600' height = '400'></canvas>
+    <script>
+        var myCanvas = document.querySelector('canvas');
+        myCanvas.style.border  ='1px solid #aaa';
+        var ctx = myCanvas.getContext('2d');
+
+
+// 绘制网格
+        var size = 20;
+        var width = ctx.canvas.width;
+        var height = ctx.canvas.height;
+        var yCount = Math.floor(ctx.canvas.width/size);
+        var xCount = Math.floor(ctx.canvas.height/size);
+        for(var i = 0; i <= xCount; i ++){
+            var y = size*i;
+            ctx.moveTo(0, -0.5 + y);
+            ctx.lineTo(width, -0.5 + y);
+            ctx.strokeStyle = '#aaa';
+            ctx.closePath();
+            ctx.stroke();
+        }
+        for(var i = 0; i <= yCount; i ++){
+            var x = size*i;
+            ctx.moveTo(-0.5 + x, 0);
+            ctx.lineTo(-0.5 + x, height);
+            ctx.strokeStyle = '#aaa';
+            ctx.closePath(); 
+            ctx.stroke();
+        }
+
+
+// 绘制坐标系
+        var length = 40;
+        var x0 = length,
+            y0 = height - length, // 原点
+            sLength = 5; // 箭头尖距轴的距离
+        // x轴
+        ctx.beginPath();
+        ctx.moveTo(x0, y0 - 0.5);
+        ctx.lineTo(width-length, y0 - 0.5);
+        ctx.strokeStyle = '#000';
+        ctx.stroke();
+        // x轴箭头
+        ctx.beginPath();
+        ctx.moveTo(width-length - sLength, y0 - sLength - 0.5);
+        ctx.lineTo(width-length + sLength, y0  - 0.5);
+        ctx.lineTo(width-length - sLength, y0 + sLength  - 0.5);
+        ctx.lineTo(width-length, y0  - 0.5);
+        ctx.closePath();
+        ctx.fillStyle = '#000';
+        ctx.fill();
+        // y轴
+        ctx.beginPath();
+        ctx.moveTo(x0 - 0.5, y0);
+        ctx.lineTo(x0 - 0.5, length);
+        ctx.strokeStyle = '#000';
+        ctx.stroke();
+        // y轴箭头
+        ctx.beginPath();
+        ctx.moveTo(length - sLength - 0.5, length + sLength);
+        ctx.lineTo(x0 - 0.5, length - sLength);
+        ctx.lineTo(length + sLength - 0.5, length + sLength);
+        ctx.lineTo(x0 - 0.5, length);
+        ctx.fillStyle = '#000';
+        ctx.closePath;
+        ctx.fill();
+     
+        
+// 绘制坐标点
+        var coordinate = {
+            x: 20,
+            y: 20,
+            length: 4
+        }
+        // x轴坐标点
+        for(var i = 1; i <= Math.floor((width - 2*length)/coordinate.x - 1); i ++){
+            ctx.beginPath();
+            ctx.moveTo(x0 + coordinate.x*i - 0.5, y0);
+            ctx.lineTo(x0 + coordinate.x*i - 0.5, y0 - coordinate.length);
+            ctx.stroke();
+        }
+        // y轴坐标点
+        for(var i = 1; i <= Math.floor((height - 2*length)/coordinate.y - 1); i ++){
+            ctx.beginPath();
+            ctx.moveTo(x0, y0 - coordinate.y*i - 0.5);
+            ctx.lineTo(x0 + coordinate.length, y0 - coordinate.y*i - 0.5);
+            ctx.stroke();
+        }
+
+// 绘制折线
+        var arr = [[20, 40], [40, 60], [60, 20], [80, 30], [100, 100], [120, 10], [140, 90], [160, 60], [180, 120], [200, 160], [220, 200], [240, 220], [260, 180], [280, 140], [300, 300], [320, 160], [340, 130], [360, 80], [380, 60], [400, 100]];
+        var LineChar = function () {
+            // 点的大小
+            this.ctx = document.querySelector('canvas').getContext('2d');
+            this.dottSize = 6;
+            
+        }
+        // 入口函数
+        LineChar.prototype.init = function (data) {
+            this.drawDotted(data);
+            this.drawLine(data);
+        }
+        // 绘制坐标点
+        LineChar.prototype.drawDotted = function (data) {
+            for(var i = 0; i < data.length; i ++){
+                this.ctx.beginPath();
+                this.ctx.moveTo(x0 + data[i][0] + this.dottSize/2 - 0.5, y0 -data[i][1] + this.dottSize/2 - 0.5);
+                this.ctx.lineTo(x0 + data[i][0] + this.dottSize/2 - 0.5, y0 -data[i][1] + this.dottSize/2 - this.dottSize - 0.5);
+                this.ctx.lineTo(x0 + data[i][0] + this.dottSize/2 - 0.5 - this.dottSize, y0 -data[i][1] + this.dottSize/2 - this.dottSize - 0.5);
+                this.ctx.lineTo(x0 + data[i][0] + this.dottSize/2 - this.dottSize - 0.5, y0 -data[i][1] + this.dottSize/2) - 0.5;
+                this.ctx.closePath();
+                this.ctx.fillStyle = '#222';
+                this.ctx.fill();
+            }
+        }
+        // 绘制线
+        LineChar.prototype.drawLine = function (data) {
+            this.ctx.moveTo(x0, y0);
+            for(var i = 0; i < data.length; i ++){
+                this.ctx.lineTo(x0 + data[i][0] - 0.5, y0 - data[i][1]);
+                this.ctx.strokeStyle = 'rgb(79, 139, 143)';
+                this.ctx.stroke();
+            }
+        }
+        var lineChart = new LineChar();
+        lineChart.init(arr);
+    </script>
+</body>
+</html>

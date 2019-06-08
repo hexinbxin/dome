@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <style>
+        canvas {
+            border: 1px solid #aaa;
+        }
+    </style>
+</head>
+
+<body>
+    <canvas width='600' height='400'></canvas>
+    <script>
+            var xhr = new XMLHttpRequest || new ActiveXObject('Microsoft.XMLHTTP');
+            xhr.open('GET', 'canvas.php');
+            xhr.send();
+            xhr.addEventListener('readystatechange', function () {
+                if (this.readyState == 4 && this.status == 200) {
+                    var data = JSON.parse(this.responseText);
+                    var picChat = new PicChart(ctx);
+                    picChat.init(data);
+                }
+            }, false)
+
+        var ctx = document.querySelector('canvas').getContext('2d');
+        var PicChart = function (ctx) {
+            this.ctx = ctx || document.querySelector('canvas').getContext('2d');   // 获取上下文
+            this.x0 = this.ctx.canvas.width / 2 + 80;             // 饼图圆心坐标
+            this.y0 = this.ctx.canvas.height / 2;
+            this.r = 150;      // 饼图半径
+            this.boxW = 20;         // 对应小方块宽高
+            this.boxH = 20;
+            this.boxOriginX = 30;   // 第一个小方块的坐标
+            this.boxOriginY = 30;
+            this.textFont = '13px Microsoft YaHei';         // 说明文字字体
+            this.space = 10;         // 小方块间隔
+            this.outLine = 20;        // 饼图说明文字线条的外长度
+        };
+        // 入口函数
+        PicChart.prototype.init = function (data) {
+            console.log(data)
+            this.drewPic(data);
+        };
+
+        // 绘制饼图函数
+        PicChart.prototype.drewPic = function (data) {
+            // 执行弧度计算函数，得到包含每条数据的弧度的对象
+            var angleList = this.angle(data);
+            var that = this;
+            var startAngle = 0;
+            angleList.forEach(function (item, i) {
+                var endAngle = startAngle + item.angle;
+                that.ctx.beginPath();
+                that.ctx.moveTo(that.x0, that.y0);
+                that.ctx.arc(that.x0, that.y0, that.r, startAngle, endAngle);
+                that.ctx.closePath();
+                // 获取颜色
+                var color = that.randomColor();
+                that.ctx.fillStyle = color;
+                that.ctx.fill();
+                // 绘制说明
+                that.drewTitle(color, item, i);
+                // 绘制百分比
+                that.drewText(startAngle, color, item);
+
+                startAngle = endAngle;
+            })
+        };
+
+        // 绘制说明函数
+        PicChart.prototype.drewTitle = function (color, item, i) {
+            this.ctx.beginPath();
+            this.ctx.fillStyle = color;
+            this.ctx.fillRect(this.boxOriginX + 0.5, this.boxOriginY + (this.boxH + this.space) * i, this.boxW, this
+                .boxH);
+            this.ctx.font = this.textFont;
+            this.ctx.textAlign = 'left';
+            this.ctx.textBaseline = 'midlle.'
+            this.ctx.fillText(item.title, this.boxOriginX + this.boxH + this.space, this.boxOriginY + this.boxH + (
+                this.boxH + this.space) * i);
+        };
+
+        // 绘制百分比文字函数
+        PicChart.prototype.drewText = function (startAngle, color, item) {
+            var angle = startAngle + item.angle / 2;
+            var length = this.r + this.outLine;
+            var lengthX = Math.cos(angle) * length;
+            var lengthY = Math.sin(angle) * length;
+            var outX = this.x0 + lengthX;
+            var outY = this.y0 + lengthY;
+            var str = Math.round((item.angle / (Math.PI * 2)) * 100 * 100) / 100 + '%';
+            this.ctx.beginPath();
+            this.ctx.moveTo(this.x0, this.y0);
+            this.ctx.lineTo(outX, outY);
+            if (outX > this.x0) {
+                var a = 1;
+                this.ctx.textAlign = 'left';
+            } else {
+                var a = -1;
+                this.ctx.textAlign = 'right';
+            }
+            this.ctx.textBaseline = 'bottom';
+            this.ctx.fillText(str, outX, outY);
+            this.ctx.lineTo(outX + a * this.ctx.measureText(str).width, outY);
+
+            this.ctx.strokeStyle = color;
+            this.ctx.stroke();
+        };
+
+        // 计算弧度
+        PicChart.prototype.angle = function (data) {
+            var all = 0;
+            console.log(data);
+            data.forEach(function (item, i) {
+                all += Number(item.num);
+            });
+            // console.log(all);
+            data.forEach(function (item, i) {
+                var angle = item.num / all * Math.PI * 2;
+                data[i].angle = angle;
+            })
+            return data;
+        }
+
+        // 随机颜色函数
+        PicChart.prototype.randomColor = function () {
+            var r = Math.floor(Math.random() * 256);
+            var g = Math.floor(Math.random() * 256);
+            var b = Math.floor(Math.random() * 256);
+            return 'rgb(' + r + ',' + g + ',' + b + ')';
+        }
+    </script>
+</body>
+
+</html>

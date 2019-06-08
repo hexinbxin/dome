@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
+        div{
+            width: 157px;
+            margin: 150px auto;
+        }
+
+        ul {
+            width: 157px;
+            border: 1px solid #ccc;
+            display: none;
+        }
+
+        ul li {
+            line-height: 30px;
+            height: 30px;
+            list-style: none;
+            padding-left: 10px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        ul li:hover {
+            background-color: #e8e8e8;
+        }
+
+        ul a {
+            text-decoration: none;
+            color: rgb(48, 46, 46);
+        }
+        input{
+            
+            height: 30px;
+            width: 300px;
+            border-radius: 15px;
+            padding-left: 20px;
+            outline: none;
+            border: 1px solid rgb(111, 170, 236);
+        }
+    </style>
+</head>
+
+<body>
+    <div>
+        <input type="text" id='text' placeholder = '请输入搜索内容' autofocus>
+        <ul id='list'>
+
+        </ul>
+    </div>
+    <script type='text/template' id='temp'>
+        <% for(var i = 0; i < list.length; i ++){ %>
+            <a href = 'https://www.baidu.com/s?ie=utf-8&f=3&rsv_bp=1&rsv_idx=1&tn=baidu&wd=<%=list[i].q%>&rsv_pq=adf3defc00084ca6&rsv_t=d61bLtcCS00AUyerOztnE75Ao2BvPhzG1bWkjBGBCtPWaaYc005K1NZ9ClE&rqlang=cn&rsv_enter=1&rsv_sug3=1&rsv_sug1=1&rsv_sug7=001&rsv_sug2=0&rsp=0&rsv_sug9=es_1_1&inputT=1185&rsv_sug4=3243&rsv_sug=9'><li><%=list[i].q%></li></a>
+        <% } %>
+    </script>
+    <script src="./模板引擎/template-web.js"></script>
+    <script>
+        var name = 'hexin';
+        var text = document.querySelector('#text');
+        var list = document.querySelector('#list');
+        text.oninput = function () {
+            list.innerHTML = '';
+            var val = text.value;
+            if (document.querySelector('#jsonp')) {
+                document.body.removeChild(document.querySelector('#jsonp'));
+            }
+            var script = document.createElement('script');
+            script.src = `https://www.baidu.com/sugrec?prod=pc&wd=${val}&cb=${name}`;
+            script.id = 'jsonp';
+            document.body.appendChild(script);
+            window[name] = function (res) {
+                if (val) {
+                    list.style.display = 'block';
+                    if (res.g) {
+                        var lists = template('temp', {
+                            list: res.g
+                        })
+                        list.innerHTML = lists;
+                    } else {
+                        list.style.display = 'none';
+                    }
+                } else {
+                    list.style.display = 'none';
+                }
+            }
+        }
+    </script>
+</body>
+
+</html>

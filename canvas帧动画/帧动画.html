@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <style>
+        canvas {
+            border: 1px solid #aaa;
+        }
+    </style>
+</head>
+
+<body>
+    <canvas width='600' height='400'></canvas>
+    <script>
+        // ctx.drawImage(img, this.originX + this.width*i, this.originY, this.width, this.height,  this.canvasX, this.canvasY, this.width, this.height)
+        var Person = function (img) {
+            this.ctx = document.querySelector('canvas').getContext('2d');
+            this.num = 0;        //初始方向
+            this.time = 150;     //每次动画间隔 
+            this.originX = 0;    //图片展示原点
+            this.originY = 0;
+            this.x0 = this.ctx.canvas.width / 2;   // 画布的中心点
+            this.y0 = this.ctx.canvas.height / 2;
+            this.src = './2.jpg';     // 载入图片的路径
+            this.distance = 10;     //每次运动的距离
+            this.flag;           // 节流阀
+            this.init();
+        }
+        // 入口函数
+        Person.prototype.init = function (img) {
+            var that = this
+            this.loadImage(function (img) {
+                that.width = img.width / 4;    // 展示图片的大小区域  
+                that.height = img.height / 4;   
+                that.canvasX = that.x0 - that.width / 2;    // 图片在canvas上的初始坐标
+                that.canvasY = that.y0 - that.height / 2; 
+                that.animation(img);
+            })
+            this.run();
+        };
+        // 加载图片
+        Person.prototype.loadImage = function (callBack) {
+            var img = new Image();
+            img.onload = function () {
+                callBack && callBack(this);
+            }
+            img.src = this.src;
+        }
+        // 切换帧
+        Person.prototype.animation = function (img) {
+            var i = 0;
+            var that = this;
+            setInterval(function () {
+                that.position(i);
+                that.ctx.clearRect(0, 0, that.x0 * 2, that.y0 * 2);
+                that.ctx.drawImage(img, that.positionX, that.positionY, that.width, that.height, that.canvasX,
+                    that.canvasY, that.width, that.height);
+                i++;
+                if (i == 4) {
+                    i = 0;
+                }
+            }, that.time);
+
+        };
+        // 计算图片定位
+        Person.prototype.position = function (i) {
+            this.positionX = this.originX + this.width * i;
+            this.positionY = this.originY + this.height * this.num;
+        };
+        // 切换方向 水平垂直移动
+        Person.prototype.run = function () {
+            var that = this;
+            var timer1;
+            var timer2;
+            var timer3;
+            var timer4;
+            document.onkeyup = function (e) {
+                if (e.keyCode == 37) {
+                    if (that.flag == 'left') {
+                        return;
+                    } else {
+                        clearInterval(timer1);
+                        clearInterval(timer2);
+                        clearInterval(timer3);
+                        clearInterval(timer4);
+                        that.num = 1;
+                        timer1 = setInterval(function () {
+                            that.canvasX = that.canvasX - that.distance;
+                            if (that.canvasX < 0) {
+                                clearInterval(timer1);
+                                that.canvasX = 0
+                            }
+                        }, that.time);
+                    }
+                    that.flag = 'left';
+                } else if (e.keyCode == 38) {
+                    if (that.flag == 'top') {
+                        return;
+                    } else {
+                        clearInterval(timer1);
+                        clearInterval(timer2);
+                        clearInterval(timer3);
+                        clearInterval(timer4);
+                        that.num = 3;
+                        timer2 = setInterval(function () {
+                            that.canvasY = that.canvasY - that.distance;
+                            if (that.canvasY < 0) {
+                                clearInterval(timer2);
+                                that.canvasY = 0
+                            }
+                        }, that.time);
+                    }
+                    that.flag = 'top';
+                } else if (e.keyCode == 39) {
+                    if (that.flag == 'right') {
+                        return;
+                    } else {
+                        clearInterval(timer1);
+                        clearInterval(timer2);
+                        clearInterval(timer3);
+                        clearInterval(timer4);
+                        that.num = 2;
+                        timer3 = setInterval(function () {
+                            that.canvasX = that.canvasX + that.distance;
+                            if (that.canvasX > that.x0 * 2 - that.width) {
+                                clearInterval(timer3);
+                                that.canvasX = that.x0 * 2 - that.width
+                            }
+                        }, that.time);
+                    }
+                    that.flag = 'right';
+                } else if (e.keyCode == 40) {
+                    if (that.flag == 'bottom') {
+                        return;
+                    } else {
+                        clearInterval(timer1);
+                        clearInterval(timer2);
+                        clearInterval(timer3);
+                        clearInterval(timer4);
+                        that.num = 0
+                        timer4 = setInterval(function () {
+                            that.canvasY = that.canvasY + that.distance;
+                            if (that.canvasY > that.y0 * 2 - that.height) {
+                                clearInterval(timer4);
+                                that.canvasY = that.y0 * 2 - that.height
+                            }
+
+                        }, that.time);
+                    }
+                    that.flag = 'bottom';
+                }
+            }
+        }
+        var person = new Person();
+    </script>
+</body>
+
+</html>
